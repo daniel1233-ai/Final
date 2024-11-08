@@ -1,47 +1,50 @@
+/* Basic styling for the page */
 body {
-  font-family: Arial, sans-serif;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
 }
 
-.title-container {
-  text-align: center;
-  margin-bottom: 20px;
+h1 {
+    margin-top: 20px;
+    font-size: 24px;
+    color: #333;
 }
 
-#map-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 20px;
-}
-
+/* SVG map styling */
 #map {
-  width: 960px;
-  height: 600px;
+    margin: 20px auto;
+    display: block;
 }
 
-#color-legend {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 0.9em;
-  margin-top: 20px;
+/* Style for countries in the map */
+.country {
+    fill: #e0e0e0; /* Default color before JavaScript applies colors */
+    stroke: #333;
+    stroke-width: 1;
+    cursor: pointer;
+    transition: fill 0.3s ease;
 }
 
-.legend-color {
-  width: 100px;
-  height: 20px;
-  margin: 5px 0;
+/* Style for countries with insufficient data */
+.country.no-data {
+    fill: #cccccc;
 }
 
-.tooltip {
-  position: absolute;
-  background-color: white;
-  border: 1px solid black;
-  padding: 5px;
-  pointer-events: none;
+/* Chart container styling */
+#chartContainer {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    text-align: center;
+    font-size: 18px;
+    color: #333;
 }
 
-#arms-chart, #stability-chart {
-  margin-top: 20px;
-  text-align: center;
+/* Optional styling for the message when there's no data */
+#chartContainer.no-data-message {
+    color: #666;
+    font-style: italic;
+    font-size: 16px;
 }
