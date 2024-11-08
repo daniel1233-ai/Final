@@ -1,97 +1,109 @@
-// Load the updated data file
-d3.csv("updated_combined_data_with_russia.csv").then(data => {
+// Function to get color based on stability estimate
+function getColorForStability(stabilityEstimate) {
+    if (stabilityEstimate > 1) return "#1a9850"; // Very Stable (Dark Green)
+    if (stabilityEstimate > 0.5) return "#66bd63"; // Stable (Light Green)
+    if (stabilityEstimate > 0) return "#a6d96a"; // Moderate (Yellow-Green)
+    if (stabilityEstimate > -0.5) return "#fdae61"; // Low Stability (Orange)
+    if (stabilityEstimate > -1) return "#f46d43"; // Very Low (Light Red)
+    return "#d73027"; // Unstable (Dark Red)
+}
 
-  const width = 960;
-  const height = 600;
-  const colorScale = d3.scaleLinear()
-                        .domain([1, 5]) // assuming 1 = unstable, 5 = very stable
-                        .range(["#d73027", "#1a9850"]); // red to green
+// Function to color countries on the map based on stability data
+function colorCountries(data) {
+    data.forEach(country => {
+        const stabilityEstimate = country.StabilityEstimate;
+        const color = stabilityEstimate !== undefined ? getColorForStability(stabilityEstimate) : "#cccccc"; // Gray for no data
+        // Apply color to the country on the map, assuming each country has an element with id `country-<code>`
+        const countryElement = document.getElementById(`country-${country.code}`);
+        if (countryElement) {
+            countryElement.style.fill = color;
+        }
+    });
+}
 
-  const svg = d3.select("#map")
-                .append("svg")
-                .attr("width", width)
-                .attr("height", height);
+// Function to plot or show "Insufficient Data" on the stability graph
+function plotStabilityGraph(countryData) {
+    const chartContainer = document.getElementById("chartContainer");
 
-  // Tooltip for displaying country name on hover
-  const tooltip = d3.select("body").append("div")
-                    .attr("class", "tooltip")
-                    .style("position", "absolute")
-                    .style("background-color", "white")
-                    .style("border", "1px solid black")
-                    .style("padding", "5px")
-                    .style("display", "none");
+    // Clear any previous content
+    chartContainer.innerHTML = "";
 
-  // Load a more detailed world GeoJSON data
-  d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson").then(geoData => {
-    // Draw the map
-    svg.selectAll("path")
-       .data(geoData.features)
-       .enter()
-       .append("path")
-       .attr("d", d3.geoPath().projection(d3.geoMercator().scale(130).translate([width / 2, height / 1.5])))
-       .attr("fill", d => {
-         const countryData = data.find(row => row.Country === d.properties.name);
-         return countryData && countryData.StabilityEstimate ? colorScale(countryData.StabilityEstimate) : "#f0f0f0"; // gray for missing data
-       })
-       .attr("stroke", "#d3d3d3")
-       .on("mouseover", (event, d) => {
-          const countryName = d.properties.name;
-          tooltip.style("display", "block").text(countryName);
-       })
-       .on("mousemove", event => {
-          tooltip.style("left", (event.pageX + 10) + "px")
-                 .style("top", (event.pageY - 20) + "px");
-       })
-       .on("mouseout", () => tooltip.style("display", "none"))
-       .on("click", (event, d) => showCountryData(d.properties.name));
-  }).catch(error => console.error("Error loading GeoJSON:", error));
-
-  // Function to show data when a country is clicked
-  function showCountryData(country) {
-    const countryData = data.filter(row => row.Country === country);
-
-    if (countryData.length === 0) {
-      alert("Data not available for " + country);
-      return;
+    // Check if the countryData contains stability data
+    if (!countryData || countryData.length === 0) {
+        // Display "Insufficient Data" message
+        chartContainer.innerText = "Insufficient Data";
+        return;
     }
 
-    // Extract time series data for plotting
-    const years = countryData.map(row => +row.Year);
-    const stability = countryData.map(row => +row.StabilityEstimate);
-    const armsDeliveries = countryData.map(row => +row.ArmsDeliveries);
+    // Continue with existing graph plotting code if data is available
+    const ctx = document.createElement("canvas"); // Assuming you're using a canvas for charting
+    chartContainer.appendChild(ctx);
+    const stabilityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: countryData.map(entry => entry.year),
+            datasets: [{
+                label: 'Political Stability',
+                data: countryData.map(entry => entry.StabilityEstimate),
+                borderColor: "#3e95cd",
+                fill: false
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'Political Stability Over Time'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        suggestedMin: -2,
+                        suggestedMax: 2
+                    }
+                }]
+            }
+        }
+    });
+}
 
-    // Arms Export Graph
-    const armsTrace = {
-      x: years,
-      y: armsDeliveries,
-      mode: 'lines+markers',
-      name: 'Arms Export',
-      line: { color: '#ff7f0e' }
-    };
+// Function to handle clicks on countries
+function onCountryClick(countryCode) {
+    // Fetch country data based on the countryCode
+    const countryData = fetchCountryData(countryCode);
 
-    const armsLayout = {
-      title: `${country} - Arms Export Over Time`,
-      xaxis: { title: 'Year' },
-      yaxis: { title: 'Arms Export Value' }
-    };
+    // Plot the stability graph for this country or show "Insufficient Data"
+    plotStabilityGraph(countryData);
+}
 
-    // Stability Graph
-    const stabilityTrace = {
-      x: years,
-      y: stability,
-      mode: 'lines+markers',
-      name: 'Political Stability',
-      line: { color: '#1f77b4' }
-    };
+// Function to fetch data for a specific country
+// Replace this with actual data fetching logic, such as querying your CSV data
+function fetchCountryData(countryCode) {
+    const data = [
+        // Example data for testing; replace with actual data retrieval logic
+        { code: 'USA', StabilityEstimate: 0.5, year: 2020 },
+        { code: 'USA', StabilityEstimate: 0.6, year: 2021 },
+        { code: 'USA', StabilityEstimate: 0.4, year: 2022 }
+    ];
 
-    const stabilityLayout = {
-      title: `${country} - Political Stability Over Time`,
-      xaxis: { title: 'Year' },
-      yaxis: { title: 'Stability Level' }
-    };
+    // Filter data by country code
+    return data.filter(entry => entry.code === countryCode);
+}
 
-    // Render arms graph above stability graph
-    Plotly.newPlot("arms-chart", [armsTrace], armsLayout);
-    Plotly.newPlot("stability-chart", [stabilityTrace], stabilityLayout);
-  }
+// Example usage: Assuming `data` is loaded from your CSV file with consolidated data
+const data = [
+    { code: 'USA', StabilityEstimate: 0.5 },
+    { code: 'CAN', StabilityEstimate: 1.2 },
+    { code: 'MEX', StabilityEstimate: -0.8 },
+    { code: 'RUS', StabilityEstimate: -0.7 } // Example row for Russia
+];
+
+// Color countries based on stability
+colorCountries(data);
+
+// Add event listeners to countries on the map (replace with your map setup)
+document.querySelectorAll(".country").forEach(country => {
+    country.addEventListener("click", function() {
+        const countryCode = country.id.replace("country-", "");
+        onCountryClick(countryCode);
+    });
 });
