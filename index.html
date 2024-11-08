@@ -1,32 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>USA Arms Export and Political Stability Visualization</title>
-  <script src="https://d3js.org/d3.v6.min.js"></script>
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Political Stability Map</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="title-container">
+
     <h1>USA Arms Export and Political Stability Visualization</h1>
-  </div>
-  <div id="map-container">
-    <div id="map"></div>
-    <div id="color-legend">
-      <p>Political Stability Estimate</p>
-      <div class="legend-color" style="background-color: #d73027;">Unstable</div>
-      <div class="legend-color" style="background-color: #fc8d59;">Very Low</div>
-      <div class="legend-color" style="background-color: #fee08b;">Low Stability</div>
-      <div class="legend-color" style="background-color: #d9ef8b;">Moderate</div>
-      <div class="legend-color" style="background-color: #91cf60;">Stable</div>
-      <div class="legend-color" style="background-color: #1a9850;">Very Stable</div>
-      <div class="legend-color" style="background-color: #f0f0f0;">No Data</div>
-    </div>
-  </div>
-  <div id="arms-chart"></div>
-  <div id="stability-chart"></div>
-  <script src="script.js"></script>
+
+    <!-- Map with countries -->
+    <svg id="map" width="800" height="400">
+        <!-- Example paths for countries; replace with actual paths or SVG elements -->
+        <path id="country-USA" class="country" d="M150,150 L200,150 L200,200 L150,200 Z"></path>
+        <path id="country-CAN" class="country" d="M100,100 L150,100 L150,150 L100,150 Z"></path>
+        <path id="country-RUS" class="country" d="M500,100 L550,100 L550,150 L500,150 Z"></path>
+        <!-- Add other countries here with correct paths and IDs -->
+    </svg>
+
+    <!-- Chart container for displaying stability data or "Insufficient Data" message -->
+    <div id="chartContainer"></div>
+
+    <script src="script.js"></script>
 </body>
 </html>
